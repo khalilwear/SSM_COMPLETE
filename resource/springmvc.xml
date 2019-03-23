@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+			http://www.springframework.org/schema/beans/spring-beans-4.2.xsd 
+			http://www.springframework.org/schema/mvc 
+			http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd 
+			http://www.springframework.org/schema/context 
+			http://www.springframework.org/schema/context/spring-context-4.2.xsd 
+			http://www.springframework.org/schema/task   
+	   		http://www.springframework.org/schema/task/spring-task-4.2.xsd">
+
+	<!-- 配置包扫描 -->
+	<context:component-scan base-package="cn.java.controller.*,cn.java.tasks"></context:component-scan>
+	
+	<!-- mvc注解驱动 -->
+	<mvc:annotation-driven/>
+	
+	<!-- 视图解析器 -->
+	<bean id="internalResourceViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/pages/"></property>
+	    <property name="suffix" value=""></property>
+	</bean>
+	
+	<!-- 文件上传 -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="utf-8"></property>
+		<property name="maxUploadSize" value="1048567"></property>
+	</bean>
+	
+	<!-- 数据校验 -->
+	
+	<!-- 配置定时器 
+     	pool-size:数量
+     -->
+     <task:scheduler id="scheduler" pool-size="10"/>
+     <task:executor id="executor" keep-alive="3600" pool-size="100-200" queue-capacity="500" rejection-policy="CALLER_RUNS"/>
+     <task:annotation-driven executor="executor" scheduler="scheduler"/>
+
+	<!-- 配置拦截器 
+	          拦截Controller,不拦截jsp
+		注意：<mvc:mapping path="/**"/>要放在最前面
+		<mvc:mapping path="/**"/> 指当前工程文件全都拦截
+		<mvc:mapping path="/admin/**"/>拦截admin目录下的Controller
+		<mvc:exclude-mapping path="/front/getPersonById.shtml"/>不拦截这个路径的Controller
+	-->
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/**"/>
+			<mvc:exclude-mapping path="/front/getPersonById.shtml"/>
+			<bean id="oneInterceptor" class="cn.java.interceptors.OneInterceptor"></bean>
+		</mvc:interceptor>
+	</mvc:interceptors>
+
+</beans>

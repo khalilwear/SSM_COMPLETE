@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans-4.2.xsd 
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-4.2.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx-4.2.xsd">
+
+	<context:component-scan base-package="cn.java.service.impl"></context:component-scan>
+
+	<!-- 读取properties配置文件 -->
+	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<!-- 指定properties所在路径 -->
+		<property name="location" value="classpath:database.properties"></property>
+	</bean>
+
+	<!-- 配置数据源 -->
+	<bean id="basicDataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<!-- 配置driverClassName,url,uername,password -->
+		<property name="driverClassName" value="${driver}"></property>
+		<property name="url" value="${url}"></property>
+		<property name="username" value="${username}"></property>
+		<property name="password" value="${password}"></property>
+	</bean>
+	<!-- 扫描保存sql语句的局部xml文件 -->
+	<bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!-- 指定数据源 -->
+		<property name="dataSource" ref="basicDataSource"></property>
+		<!-- 指定局部xml文件的位置 -->
+		<property name="mapperLocations" value="classpath*:cn/java/mapper/*.xml"></property>
+	</bean>
+	<!-- 扫描mapper接口类，并且与xml文件关联 -->
+	<bean id="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<!-- 指定mapper接口类存放的位置 -->
+		<property name="basePackage" value="cn.java.mapper"></property>
+	</bean>
+
+	<!-- 配置事务
+		应该是用于对数据库操作的回滚
+	-->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="basicDataSource"></property>
+	</bean>
+	<!-- 配置事务注解驱动 -->
+	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
+
+
+
+
+</beans>
